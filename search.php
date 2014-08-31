@@ -7,6 +7,9 @@
   <title>Search Page</title>
 </head>
 <body bgcolor="white">
+<h3> Winestore Database Search v2.0</h3> 
+<p> Enter your search terms</p>
+
 	<?php 
 		require "db.php"; 
 		
@@ -15,25 +18,31 @@
 		$defaultWithinResultSet = FALSE; 
 			
 			//  Query to find distinct values of $attributeName in $tableName 
-			$distinctQuery = "SELECT DISTINCT {$attributeName} FROM {$tableName}"; 
+			$distinctQuery = "SELECT DISTINCT {$attributeName} FROM {$tableName} ORDER BY {$attributeName}"; 
 			
 			//Run the distinctQuery on the databaseName
 			if (!($resultId = @ mysql_query ($distinctQuery, $connection)))
 				showerror(); 
 				
 			// Start the select widget 
+			
 			print "\n<select name=\"{$pulldownName}\">"; 
 			
+			if (!(isset($defaultValue))) 
+				{
+					// Change defaultValue to something else so it only runs once
+					$defaultValue = "null";
+					print "\n\t<option selected value=\"All\">All";
+				}
+				
 			// Retrieve each row from the query 
 			while ($row = @ mysql_fetch_array($resultId)) {
 				
 				// Get the value for the attribute to be displayed
 				$result = $row[$attributeName]; 
 				
-				// Check if a defaultValue is set and, if so, is it the 
-				// current database value? 
-				if (isset($defaultvalue) && $result == $defaultValue) 
-					// Yes, show as selected 
+				// Print
+				if ($result == $defaultValue)  
 					print "\n\t<option selected value=\"{$result}\">{$result}"; 
 				else
 					// No, just show as an option 
@@ -44,10 +53,10 @@
 		} // End function 
 	?>
 
-  <form action="answer2.php" method="GET">
-    <br>Please enter a wine name: 
+  <form action="answer.php" method="GET">
+    <br>Wine Name: 
     <input type="text" name="wineName" value="">
-	<br>Please enter a winery name: 
+	<br>Winery Name:
 	<input type="text" name="wineryName" value=""> 
 	<?php 
 		// Connect to the server 
@@ -59,7 +68,7 @@
 			showerror(); 
 		}
 		
-		print "<br>\nRegion: ";
+		print "<br>\nRegion Name: ";
 		
 		selectDistinct($connection, "region", "region_name", "regionName", "All"); 
 		
@@ -67,7 +76,23 @@
 		
 		selectDistinct($connection, "grape_variety", "variety", "grapeVariety"); 
 		
+		print "<br>\n Minimum Year: ";  
+		
+		selectDistinct($connection, "wine", "year", "minYear");
+		
+		print "<br>\n Maximum Year: "; 
+		
+		selectDistinct($connection, "wine", "year", "maxYear"); 
+		
 	?>
+	<br>Minimum Stock Count: 
+	<input type="number" name="minStock" value=""> 
+	<br>Maximum Stock Count: 
+	<input type="number" name="maxStock" value="">
+	<br>Minimum Price: 
+	<input type="number" name="minPrice" value=""> 
+	<br>Maximum Price: 
+	<input type="number" name="maxPrice" value="">
     <br><br><input type="submit" value="Search">
   </form>
   <br>
